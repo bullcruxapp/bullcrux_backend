@@ -1,2 +1,0 @@
-# bullcrux_backend
-Backend
