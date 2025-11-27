@@ -1,0 +1,84 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String          @unique
+  password      String?         // null si inicia con Google u otra red
+  googleId      String?         @unique
+  balanceCoins  Int             @default(0)
+  
+  raffles       Raffle[]        @relation("UserRaffles")
+  tickets       Ticket[]
+  transactions  Transaction[]
+
+  // Relación con rifas ganadas
+  rafflesWon    Raffle[]        @relation("RaffleWinner")
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Raffle {
+  id                String         @id @default(uuid())
+  title             String
+  description       String?
+  productName       String
+  productImage      String?
+  ticketPriceCoins  Int
+  totalTickets      Int
+  ticketsSold       Int             @default(0)
+  status            RaffleStatus    @default(OPEN)
+  
+  creatorId         String
+  creator           User            @relation("UserRaffles", fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  tickets           Ticket[]
+  
+  winnerId          String?
+  winner            User?           @relation("RaffleWinner", fields: [winnerId], references: [id])
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Ticket {
+  id           String      @id @default(uuid())
+  raffleId     String
+  userId       String
+  raffle       Raffle      @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchasedAt  DateTime    @default(now())
+}
+
+model Transaction {
+  id           String           @id @default(uuid())
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         TransactionType
+  amount       Int
+  description  String?
+  createdAt    DateTime         @default(now())
+}
+
+enum TransactionType {
+  DEPOSIT
+  SPEND
+  REFUND
+  WIN
+}
+
+enum RaffleStatus {
+  OPEN
+  CLOSED
+}
