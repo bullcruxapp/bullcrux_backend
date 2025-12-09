@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { RaffleModule } from './raffle/raffle.module';
+import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RaffleModule } from './raffle/raffle.module';
     AuthModule,
     UsersModule,
     RaffleModule,
+    TicketModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],
