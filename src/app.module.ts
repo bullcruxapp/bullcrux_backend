@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import AppDataSource from 'dataSource.config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -10,7 +8,6 @@ import { TicketModule } from './ticket/ticket.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(AppDataSource),
     PrismaModule,
     AuthModule,
     UsersModule,
