@@ -15,6 +15,14 @@ module.exports = {
       env: {
         NODE_ENV: 'development'
       }
+    },
+    {
+      name: 'bullcrux_backend_test',
+      script: './dist/src/main.js',
+      watch: false,
+      env: {
+        NODE_ENV: 'testing'
+      }
     }
   ]
 }
