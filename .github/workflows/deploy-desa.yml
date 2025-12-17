@@ -1,14 +1,14 @@
-name: Deploy Production
+name: Deploy Desa
 
 on:
   push:
     branches:
-      - main
+      - desa
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: desa
     steps:
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v0.1.10
@@ -17,5 +17,5 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/bullcrux_backend_prod
+            cd /var/www/bullcrux_backend_desa
             ./deploy.sh
