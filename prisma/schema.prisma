@@ -69,6 +69,7 @@ model Transaction {
   userId       String
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   type         TransactionType
+  status       TransactionStatus @default(PENDING)
   amount       Int
   description  String?
   createdAt    DateTime         @default(now())
@@ -79,6 +80,14 @@ enum TransactionType {
   SPEND
   REFUND
   WIN
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+  REJECTED
+  EXPIRED
 }
 
 enum RaffleStatus {
