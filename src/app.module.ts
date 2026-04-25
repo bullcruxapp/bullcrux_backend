@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { RaffleModule } from './raffle/raffle.module';
 import { TicketModule } from './ticket/ticket.module';
 import { PaymentsModule } from './payment/payment.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PaymentsModule } from './payment/payment.module';
     RaffleModule,
     TicketModule,
     PaymentsModule,
+    UploadModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],
