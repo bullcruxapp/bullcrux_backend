@@ -1,23 +1,26 @@
 import {
-    Controller, Post, Param,
+    Controller, Post, Param, Delete,
     UseInterceptors, UploadedFiles,
-    BadRequestException
+    BadRequestException, NotFoundException
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express'; // 👈 FilesInterceptor (plural)
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { File as MulterFile } from 'multer';
 import * as fs from 'fs';
+import { UploadService } from './upload.service';
 
 @Controller('upload')
 export class UploadController {
 
-    @Post('post/:postId/images')
+    constructor(private readonly uploadService: UploadService) {}
+
+    @Post('raffle/:raffleId/images')
     @UseInterceptors(FilesInterceptor('files', 10, {
         storage: diskStorage({
             destination: (req, file, cb) => {
-                const postId = req.params.postId;
-                const folder = `${process.env.UPLOAD_PATH}/posts/${postId}`;
+                const raffleId = req.params.raffleId;
+                const folder = `${process.env.UPLOAD_PATH}/raffles/${raffleId}`;
                 fs.mkdirSync(folder, { recursive: true });
                 cb(null, folder);
             },
@@ -32,25 +35,31 @@ export class UploadController {
             }
             cb(null, true);
         },
-        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB por imagen
+        limits: { fileSize: 5 * 1024 * 1024 },
     }))
-    uploadImages(
-        @Param('postId') postId: string,
-        @UploadedFiles() files: MulterFile[]  // 👈 array de archivos
+    async uploadRaffleImages(
+        @Param('raffleId') raffleId: string,
+        @UploadedFiles() files: MulterFile[]
     ) {
         if (!files || files.length === 0) {
             throw new BadRequestException('No se recibieron imágenes');
         }
 
-        const urls = files.map(file => ({
-            filename: file.filename,
-            url: `${process.env.BASE_URL}/uploads/posts/${postId}/${file.filename}`,
-        }));
+        const images = await this.uploadService.saveRaffleImages(raffleId, files);
 
         return {
-            postId,
-            total: files.length,
-            images: urls,
+            raffleId,
+            total: images.length,
+            images,
         };
+    }
+
+    @Delete('raffle/:raffleId/images/:imageId')
+    async deleteRaffleImage(
+        @Param('raffleId') raffleId: string,
+        @Param('imageId') imageId: string,
+    ) {
+        await this.uploadService.deleteRaffleImage(raffleId, imageId);
+        return { message: 'Imagen eliminada correctamente' };
     }
 }
