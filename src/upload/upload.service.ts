@@ -21,7 +21,6 @@ export class UploadService {
             throw new NotFoundException(`Raffle ${raffleId} no encontrada`);
         }
 
-        // Calcular el order a partir de las imágenes existentes
         const currentCount = raffle.productImages.length;
 
         const images = await this.prisma.$transaction(
