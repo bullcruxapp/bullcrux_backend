@@ -7,5 +7,6 @@ export class TicketEntity {
   userId: string
   raffle?: RaffleEntity
   user?: UserEntity
+  quantity?: number
   purchasedAt: Date
 }
