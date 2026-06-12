@@ -14,6 +14,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
-        return { id: payload.id, email: payload.email };
+        // BUGFIX: el token se firma con { sub: user.id, email }, no con { id }.
+        // Antes esto devolvía payload.id (undefined), rompiendo req.user.id en todos los endpoints protegidos.
+        return { id: payload.sub, email: payload.email };
     }
 }
