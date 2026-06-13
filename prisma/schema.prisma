@@ -70,14 +70,19 @@ model Ticket {
 }
 
 model Transaction {
-  id           String           @id @default(uuid())
-  userId       String
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type         TransactionType
-  status       TransactionStatus @default(PENDING)
-  amount       Int
-  description  String?
-  createdAt    DateTime         @default(now())
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  amount         Int
+  description    String?
+
+  // Datos para vincular el pago con la generación de tickets al aprobarse
+  raffleId       String?
+  ticketQuantity Int?
+
+  createdAt      DateTime         @default(now())
 }
 
 enum TransactionType {
