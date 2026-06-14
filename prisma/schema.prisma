@@ -3,7 +3,6 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "binary"
-  // output   = "../prisma/generated/client"
 }
 
 datasource db {
@@ -11,20 +10,18 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
-
 model User {
   id            String         @id @default(uuid())
   name          String?
   email         String          @unique
-  password      String?         // null si inicia con Google u otra red
+  password      String?
   googleId      String?         @unique
-  balanceCoins  Int             @default(0) // reservado para fases futuras (cripto/coins)
+  balanceCoins  Int             @default(0)
+  isAdmin       Boolean         @default(false)  // NUEVO
 
   raffles       Raffle[]        @relation("UserRaffles")
   tickets       Ticket[]
   transactions  Transaction[]
-
-  // Relación con rifas ganadas
   rafflesWon    Raffle[]        @relation("RaffleWinner")
 
   createdAt     DateTime        @default(now())
@@ -36,8 +33,8 @@ model Raffle {
   title             String
   description       String?
   productName       String
-  productImage      String?
-  ticketPriceCoins  Int            // precio por participación, en ARS
+  productImages     RaffleImage[]
+  ticketPriceCoins  Int
   totalTickets      Int
   ticketsSold       Int             @default(0)
   status            RaffleStatus    @default(OPEN)
@@ -56,11 +53,20 @@ model Raffle {
   updatedAt         DateTime        @updatedAt
 }
 
+model RaffleImage {
+  id        String   @id @default(uuid())
+  url       String
+  order     Int      @default(0)
+  raffleId  String
+  raffle    Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
 model Ticket {
   id           String       @id @default(uuid())
   raffleId     String
   userId       String
-  number       Int          // número de participación asignado dentro de la raffle
+  number       Int
   source       TicketSource @default(PAID)
   raffle       Raffle       @relation(fields: [raffleId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -77,11 +83,8 @@ model Transaction {
   status         TransactionStatus @default(PENDING)
   amount         Int
   description    String?
-
-  // Datos para vincular el pago con la generación de tickets al aprobarse
   raffleId       String?
   ticketQuantity Int?
-
   createdAt      DateTime         @default(now())
 }
 
@@ -101,12 +104,12 @@ enum TransactionStatus {
 }
 
 enum RaffleStatus {
-  OPEN       // recibiendo participaciones
-  SOLD_OUT   // todos los tickets vendidos, pendiente de sorteo
-  DRAWN      // sorteo realizado, ganador asignado
+  OPEN
+  SOLD_OUT
+  DRAWN
 }
 
 enum TicketSource {
-  PAID  // participación pagada (MercadoPago / cripto a futuro)
-  AD    // participación gratuita por ver publicidad
+  PAID
+  AD
 }
