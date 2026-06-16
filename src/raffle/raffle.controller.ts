@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, UseGuards } from '@nestjs/common'
 import { RaffleService } from './raffle.service'
 import { Raffle } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -13,7 +13,7 @@ export class RaffleController {
     }
 
     @Get("/:id")
-    async getRaffleById(@Query('id') id: string): Promise<Raffle | string> {
+    async getRaffleById(@Param('id') id: string): Promise<Raffle | string> {
         return this.raffleService.getRaffleById(id);
     }
 

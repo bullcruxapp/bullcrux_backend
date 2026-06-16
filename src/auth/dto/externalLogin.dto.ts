@@ -1,15 +1,26 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class ExternalLoginDto {
   @IsEmail()
-  email: string
+  email: string;
 
-  googleId?: string
-  facebookId?: string
+  @IsOptional()
+  @IsString()
+  googleId?: string;
 
-  name?: string
-  surName?: string
+  @IsOptional()
+  @IsString()
+  facebookId?: string;
 
-  @IsNotEmpty()
-  password: string
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  surName?: string;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
 }

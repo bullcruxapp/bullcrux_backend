@@ -7,7 +7,7 @@ import * as jwt from 'jsonwebtoken'
 export class AuthService {
     constructor(private prisma: PrismaService) { }
 
-    async register(dto: { email: string; password: string; name?: string }) {
+    async register(dto: { email: string; password?: string; name?: string }) {
         const existing = await this.prisma.user.findUnique({ where: { email: dto.email } })
         if (existing) {
             throw new BadRequestException('El email ya está registrado')
@@ -33,7 +33,7 @@ export class AuthService {
         }
     }
 
-    async login(dto: { email: string; password: string }) {
+    async login(dto: { email: string; password?: string }) {
         const user = await this.prisma.user.findUnique({ where: { email: dto.email } })
         if (!user) throw new UnauthorizedException('Credenciales inválidas')
 
@@ -61,18 +61,25 @@ export class AuthService {
         }
     }
 
-    async externalLogin(dto: { email: string; googleId?: string; facebookId?: string; name?: string; surName?: string; password: string }) {
+    async externalLogin(dto: { email: string; googleId?: string; facebookId?: string; name?: string; surName?: string; password?: string }) {
         
-
         //CUANDO SE IMPLEMENTE OTRO PROVEEDOR, AGREGAR LOGICA SIMILAR
-
         let user = await this.prisma.user.findUnique({ where: { googleId: dto.googleId } })
+
+        if (!user && dto.email) {
+            const userByEmail = await this.prisma.user.findUnique({ where: { email: dto.email } })
+            if (userByEmail && dto.googleId) {
+                user = await this.prisma.user.update({ where: { id: userByEmail.id }, data: { googleId: dto.googleId } })
+            } else if (userByEmail) {
+                user = userByEmail
+            }
+        }
         
         if (user) {
             // User exists, proceed to login
             const token = jwt.sign(
                 { sub: user.id, email: user.email },
-                process.env.JWT_SECRET!,
+                process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             )
             return {
@@ -81,7 +88,6 @@ export class AuthService {
                 user: { id: user.id, email: user.email, name: user.name },
             }
         } else {
-
             const newUser = await this.prisma.user.create({
                 data: {
                     email: dto.email,
@@ -89,13 +95,11 @@ export class AuthService {
                     googleId: dto.googleId,
                 },
             })
-
             const token = jwt.sign(
                 { sub: newUser.id, email: newUser.email },
-                process.env.JWT_SECRET!,
+                process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             )
-
             return {
                 message: 'Usuario registrado correctamente',
                 token,

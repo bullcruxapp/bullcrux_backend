@@ -36,8 +36,10 @@ export class RaffleService {
     }
 
     async getRaffleById(id: string): Promise<Raffle> {
+        console.log('getRaffleById called with id:', id, typeof id);
         const raffle = await this.prisma.raffle.findUnique({
-            where: { id },
+            where: { id: String(id) },
+            include: { productImages: true, winner: true },
         });
         return raffle;
     }
