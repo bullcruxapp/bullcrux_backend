@@ -9,10 +9,11 @@ async function bootstrap() {
 
   // CORS — solo permite requests desde el frontend oficial
   app.enableCors({
-    origin: [
-      process.env.URL_FRONTEND,   // https://test.bullcruxapp.com (test) o https://bullcruxapp.com (prod)
-      'http://localhost:3000',     // desarrollo local
-    ],
+   origin: [
+  'https://bullcruxapp.com',
+  'https://www.bullcruxapp.com',
+  'http://localhost:3000',
+  ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
