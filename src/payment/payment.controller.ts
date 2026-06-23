@@ -36,12 +36,16 @@ export class PaymentsController {
   }
 
   @Post('webhook')
-  async webhook(@Query('type') type: string, @Query('data.id') dataId: string) {
-    if (type !== 'payment') {
+  async webhook(@Query('type') type: string, @Query('data.id') dataId: string, @Body() body: any) {
+    console.log('Webhook received:', JSON.stringify(body));
+    const eventType = type || body?.type;
+    const paymentId = dataId || body?.data?.id;
+
+    if (eventType !== 'payment' || !paymentId) {
       return { received: true };
     }
 
-    const payment = await this.paymentsService.validatePayment(dataId);
+    const payment = await this.paymentsService.validatePayment(paymentId);
     const externalReference = payment.external_reference;
 
     if (!externalReference) {
@@ -62,11 +66,8 @@ export class PaymentsController {
         await this.paymentsService.markTransaction(externalReference, TransactionStatus.CANCELLED);
         break;
       default:
-        // pending, in_process, etc. -> no action, queda PENDING
         break;
     }
-
     return { received: true };
   }
 }
-
