@@ -69,3 +69,4 @@ export class PaymentsController {
     return { received: true };
   }
 }
+
