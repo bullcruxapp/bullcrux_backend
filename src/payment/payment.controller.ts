@@ -15,9 +15,13 @@ export class PaymentsController {
   }
 
   @Get('success')
-  async paymentSuccess(@Query('payment_id') paymentId: string) {
+  async paymentSuccess(@Query('payment_id') paymentId: string, @Query('external_reference') externalReference: string) {
     const payment = await this.paymentsService.validatePayment(paymentId);
     console.log('Payment success:', payment);
+    if (payment.status === 'approved' && externalReference) {
+      const result = await this.paymentsService.confirmPayment(externalReference);
+      console.log('Pago confirmado:', result);
+    }
     return payment;
   }
 
