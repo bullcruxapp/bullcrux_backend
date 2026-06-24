@@ -15,10 +15,19 @@ export class RaffleService {
     }
 
     async createRaffle(data: Raffle): Promise<Raffle> {
+        const { productImages, ...rest } = data as any;
         const raffle = await this.prisma.raffle.create({
             data: {
-                ...data,
+                ...rest,
                 updatedAt: new Date(),
+                ...(productImages && productImages.length > 0 ? {
+                    productImages: {
+                        create: productImages.map((img: any) => ({
+                            url: img.url,
+                            order: img.order || 0,
+                        }))
+                    }
+                } : {})
             }
         });
         return raffle;
