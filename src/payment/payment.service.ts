@@ -106,6 +106,11 @@ export class PaymentsService {
       data: { status: TransactionStatus.APPROVED },
     });
 
+    await this.prisma.user.update({
+      where: { id: transaction.userId },
+      data: { balanceCoins: { increment: transaction.amount } },
+    });
+
     const tickets = await this.ticketService.purchaseTickets(
       transaction.userId,
       transaction.raffleId,
