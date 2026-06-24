@@ -85,7 +85,7 @@ export class AuthService {
             return {
                 message: 'Login exitoso',
                 token,
-                user: { id: user.id, email: user.email, name: user.name },
+                user: { id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin },
             }
         } else {
             const newUser = await this.prisma.user.create({
