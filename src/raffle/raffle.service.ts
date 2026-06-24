@@ -45,6 +45,10 @@ export class RaffleService {
         return raffle;
     }
 
+    async deleteRaffle(id: string): Promise<any> {
+        return this.prisma.raffle.delete({ where: { id } });
+    }
+
     async getRaffleById(id: string): Promise<Raffle> {
         console.log('getRaffleById called with id:', id, typeof id);
         const raffle = await this.prisma.raffle.findUnique({
