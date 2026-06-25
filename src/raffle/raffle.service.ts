@@ -6,7 +6,14 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class RaffleService {
     constructor(private prisma: PrismaService) {}
 
-    async getOpenRaffles(): Promise<Raffle[]> {
+    async getFeaturedRaffle(): Promise<Raffle | null> {
+        return this.prisma.raffle.findFirst({
+            where: { status: RaffleStatus.OPEN, featured: true },
+            include: { productImages: true },
+        });
+    }
+
+        async getOpenRaffles(): Promise<Raffle[]> {
         const raffles = await this.prisma.raffle.findMany({
             where: { status:RaffleStatus.OPEN },
             include: { productImages: true },
