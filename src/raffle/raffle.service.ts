@@ -34,12 +34,22 @@ export class RaffleService {
         return raffle;
     }
 
-    async updateRaffle(data: Raffle): Promise<Raffle> {
+    async updateRaffle(data: any): Promise<Raffle> {
+        const { productImages, id, createdAt, tickets, creator, winner, ...rest } = data;
         const raffle = await this.prisma.raffle.update({
-            where: { id: data.id },
+            where: { id },
             data: {
-                ...data,
+                ...rest,
                 updatedAt: new Date(),
+                ...(productImages && productImages.length > 0 ? {
+                    productImages: {
+                        deleteMany: {},
+                        create: productImages.map((img: any) => ({
+                            url: img.url,
+                            order: img.order || 0,
+                        }))
+                    }
+                } : {})
             }
         });
         return raffle;
