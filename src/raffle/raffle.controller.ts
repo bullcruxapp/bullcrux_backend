@@ -12,6 +12,11 @@ export class RaffleController {
         return this.raffleService.getOpenRaffles();
     }
 
+    @Get("/featured")
+    async getFeaturedRaffle(): Promise<Raffle | null> {
+        return this.raffleService.getFeaturedRaffle();
+    }
+
     @Get("/:id")
     async getRaffleById(@Param('id') id: string): Promise<Raffle | string> {
         return this.raffleService.getRaffleById(id);

@@ -38,6 +38,7 @@ model Raffle {
   totalTickets      Int
   ticketsSold       Int             @default(0)
   status            RaffleStatus    @default(OPEN)
+  featured          Boolean         @default(false)
 
   creatorId         String
   creator           User            @relation("UserRaffles", fields: [creatorId], references: [id], onDelete: Cascade)
