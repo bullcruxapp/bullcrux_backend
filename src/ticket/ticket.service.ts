@@ -14,7 +14,7 @@ export class TicketService {
   async getTicketsByUser(userId: string): Promise<Ticket[]> {
     return this.prisma.ticket.findMany({
       where: { userId },
-      include: { raffle: true },
+      include: { raffle: { include: { productImages: true } } },
       orderBy: { purchasedAt: 'desc' },
     });
   }
