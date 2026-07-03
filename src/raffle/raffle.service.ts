@@ -6,6 +6,19 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class RaffleService {
     constructor(private prisma: PrismaService) {}
 
+    async getParticipants(raffleId: string) {
+        const tickets = await this.prisma.ticket.findMany({
+            where: { raffleId },
+            include: {
+                user: {
+                    select: { id: true, name: true, email: true, image: true }
+                }
+            },
+            orderBy: { number: 'asc' }
+        });
+        return tickets;
+    }
+
     async getFeaturedRaffle(): Promise<Raffle | null> {
         return this.prisma.raffle.findFirst({
             where: { status: RaffleStatus.OPEN, featured: true },

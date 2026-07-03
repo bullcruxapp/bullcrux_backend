@@ -23,6 +23,12 @@ export class RaffleController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Get("/:id/participants")
+    async getParticipants(@Param('id') id: string): Promise<any> {
+        return this.raffleService.getParticipants(id);
+    }
+
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.OK)
     @Post()
     async createRaffle(@Req() req: any, @Body() dto: any): Promise<Raffle | string> {
