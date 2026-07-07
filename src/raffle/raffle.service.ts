@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { Raffle, RaffleStatus } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
+import { MailService } from "src/mail/mail.service";
 
 @Injectable()
 export class RaffleService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private prisma: PrismaService, private mail: MailService) {}
 
     async drawWinner(raffleId: string) {
         const raffle = await this.prisma.raffle.findUnique({ where: { id: raffleId } });
@@ -31,6 +32,17 @@ export class RaffleService {
                 winner: { select: { id: true, name: true, email: true } }
             }
         });
+
+        // Send winner email
+        if (updated.winner) {
+            await this.mail.sendWinnerEmail(
+                updated.winner.email,
+                updated.winner.name || 'Usuario',
+                updated.title,
+                updated.productName,
+                winningTicket.number
+            );
+        }
 
         return {
             raffle: updated,
