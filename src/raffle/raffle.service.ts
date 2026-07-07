@@ -6,6 +6,41 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class RaffleService {
     constructor(private prisma: PrismaService) {}
 
+    async drawWinner(raffleId: string) {
+        const raffle = await this.prisma.raffle.findUnique({ where: { id: raffleId } });
+        if (!raffle) throw new Error('Sorteo no encontrado');
+        if (raffle.winnerId) throw new Error('Este sorteo ya tiene ganador');
+
+        const tickets = await this.prisma.ticket.findMany({
+            where: { raffleId },
+            include: { user: { select: { id: true, name: true, email: true } } }
+        });
+
+        if (tickets.length === 0) throw new Error('No hay participantes en este sorteo');
+
+        const winningTicket = tickets[Math.floor(Math.random() * tickets.length)];
+
+        const updated = await this.prisma.raffle.update({
+            where: { id: raffleId },
+            data: {
+                winnerId: winningTicket.userId,
+                drawnAt: new Date(),
+                status: 'FINISHED' as any,
+            },
+            include: {
+                winner: { select: { id: true, name: true, email: true } }
+            }
+        });
+
+        return {
+            raffle: updated,
+            winningTicket: {
+                number: winningTicket.number,
+                user: winningTicket.user
+            }
+        };
+    }
+
     async getParticipants(raffleId: string) {
         const tickets = await this.prisma.ticket.findMany({
             where: { raffleId },
