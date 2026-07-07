@@ -11,7 +11,7 @@ export class RaffleService {
             where: { raffleId },
             include: {
                 user: {
-                    select: { id: true, name: true, email: true, image: true }
+                    select: { id: true, name: true, email: true }
                 }
             },
             orderBy: { number: 'asc' }
