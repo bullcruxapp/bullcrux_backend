@@ -25,7 +25,7 @@ export class RaffleService {
             data: {
                 winnerId: winningTicket.userId,
                 drawnAt: new Date(),
-                status: 'FINISHED' as any,
+                status: 'DRAWN' as any,
             },
             include: {
                 winner: { select: { id: true, name: true, email: true } }
