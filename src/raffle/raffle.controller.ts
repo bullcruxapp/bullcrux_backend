@@ -42,6 +42,12 @@ export class RaffleController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Get("/my/wins")
+    async getMyWins(@Req() req: any): Promise<any> {
+        return this.raffleService.getWinsByUser(req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Put("/:id")
     async updateRaffle(@Param('id') id: string, @Body() dto: any): Promise<Raffle | string> {
         return this.raffleService.updateRaffle({ ...dto, id });

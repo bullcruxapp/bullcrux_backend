@@ -53,6 +53,14 @@ export class RaffleService {
         };
     }
 
+    async getWinsByUser(userId: string) {
+        return this.prisma.raffle.findMany({
+            where: { winnerId: userId },
+            include: { productImages: true },
+            orderBy: { drawnAt: 'desc' }
+        });
+    }
+
     async getParticipants(raffleId: string) {
         const tickets = await this.prisma.ticket.findMany({
             where: { raffleId },
