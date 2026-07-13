@@ -83,8 +83,9 @@ export class RaffleService {
 
         async getOpenRaffles(): Promise<Raffle[]> {
         const raffles = await this.prisma.raffle.findMany({
-            where: { status:RaffleStatus.OPEN },
-            include: { productImages: true },
+            where: { status: { in: [RaffleStatus.OPEN, RaffleStatus.SOLD_OUT, RaffleStatus.DRAWN] } },
+            include: { productImages: true, winner: { select: { name: true } } },
+            orderBy: { drawnAt: 'desc' },
         });
 
         return raffles;
