@@ -17,7 +17,8 @@ model User {
   password      String?
   googleId      String?         @unique
   balanceCoins  Int             @default(0)
-  isAdmin       Boolean         @default(false)  // NUEVO
+  isAdmin       Boolean         @default(false)
+  phone         String?
 
   raffles       Raffle[]        @relation("UserRaffles")
   tickets       Ticket[]
