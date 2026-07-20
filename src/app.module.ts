@@ -8,6 +8,7 @@ import { TicketModule } from './ticket/ticket.module';
 import { PaymentsModule } from './payment/payment.module';
 import { UploadModule } from './upload/upload.module';
 import { DrawModule } from './draw/draw.module';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DrawModule } from './draw/draw.module';
     PaymentsModule,
     UploadModule,
     DrawModule,
+    FavoriteModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],

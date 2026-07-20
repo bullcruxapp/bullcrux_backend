@@ -24,6 +24,7 @@ model User {
   tickets       Ticket[]
   transactions  Transaction[]
   rafflesWon    Raffle[]        @relation("RaffleWinner")
+  favorites     Favorite[]
 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -45,6 +46,7 @@ model Raffle {
   creator           User            @relation("UserRaffles", fields: [creatorId], references: [id], onDelete: Cascade)
 
   tickets           Ticket[]
+  favorites         Favorite[]
 
   winnerId          String?
   winner            User?           @relation("RaffleWinner", fields: [winnerId], references: [id])
@@ -114,4 +116,14 @@ enum RaffleStatus {
 enum TicketSource {
   PAID
   AD
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  raffleId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  raffle    Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+  @@unique([userId, raffleId])
 }
