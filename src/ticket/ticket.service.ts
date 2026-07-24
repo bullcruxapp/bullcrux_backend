@@ -71,6 +71,7 @@ export class TicketService {
         data: {
           ticketsSold: newTicketsSold,
           status: isSoldOut ? RaffleStatus.SOLD_OUT : raffle.status,
+          countdownStartedAt: (!raffle.countdownStartedAt && raffle.productPriceCoins > 0 && (newTicketsSold * raffle.ticketPriceCoins) >= raffle.productPriceCoins) ? new Date() : raffle.countdownStartedAt,
           updatedAt: new Date(),
         },
       });
@@ -125,6 +126,7 @@ export class TicketService {
         data: {
           ticketsSold: newTicketsSold,
           status: isSoldOut ? RaffleStatus.SOLD_OUT : raffle.status,
+          countdownStartedAt: (!raffle.countdownStartedAt && raffle.productPriceCoins > 0 && (newTicketsSold * raffle.ticketPriceCoins) >= raffle.productPriceCoins) ? new Date() : raffle.countdownStartedAt,
           updatedAt: new Date(),
         },
       });

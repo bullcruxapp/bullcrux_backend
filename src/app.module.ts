@@ -9,6 +9,7 @@ import { PaymentsModule } from './payment/payment.module';
 import { UploadModule } from './upload/upload.module';
 import { DrawModule } from './draw/draw.module';
 import { FavoriteModule } from './favorite/favorite.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FavoriteModule } from './favorite/favorite.module';
     UploadModule,
     DrawModule,
     FavoriteModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],

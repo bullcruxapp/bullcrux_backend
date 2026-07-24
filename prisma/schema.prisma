@@ -37,6 +37,8 @@ model Raffle {
   productName       String
   productImages     RaffleImage[]
   ticketPriceCoins  Int
+  productPriceCoins Int             @default(0)
+  countdownStartedAt DateTime?
   totalTickets      Int
   ticketsSold       Int             @default(0)
   status            RaffleStatus    @default(OPEN)
