@@ -25,6 +25,7 @@ model User {
   transactions  Transaction[]
   rafflesWon    Raffle[]        @relation("RaffleWinner")
   favorites     Favorite[]
+  adViews       AdView[]
 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -49,6 +50,7 @@ model Raffle {
 
   tickets           Ticket[]
   favorites         Favorite[]
+  adViews           AdView[]
 
   winnerId          String?
   winner            User?           @relation("RaffleWinner", fields: [winnerId], references: [id])
@@ -128,4 +130,19 @@ model Favorite {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   raffle    Raffle   @relation(fields: [raffleId], references: [id], onDelete: Cascade)
   @@unique([userId, raffleId])
+}
+
+/// Registra cada anuncio completado en AdGate Media (via postback).
+/// conversionId evita contar dos veces el mismo evento si AdGate reintenta el postback.
+model AdView {
+  id           String   @id @default(uuid())
+  userId       String
+  raffleId     String
+  conversionId String   @unique
+  createdAt    DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  raffle Raffle @relation(fields: [raffleId], references: [id], onDelete: Cascade)
+
+  @@index([userId, raffleId])
 }
