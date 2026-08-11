@@ -7,6 +7,9 @@ import {
 import { Ticket, RaffleStatus, TicketSource } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
+/** Cantidad de anuncios que hay que completar para desbloquear 1 ticket gratis. */
+export const AD_VIEWS_REQUIRED = 5;
+
 @Injectable()
 export class TicketService {
   constructor(private prisma: PrismaService) {}
@@ -81,7 +84,7 @@ export class TicketService {
   }
 
   /**
-   * Participación gratuita por ver una publicidad (AD).
+   * Participación gratuita por ver 5 publicidades (AD).
    * Otorga 1 ticket. Limita a 1 ticket gratuito por usuario por sorteo.
    */
   async claimAdTicket(userId: string, raffleId: string): Promise<Ticket> {
@@ -104,6 +107,15 @@ export class TicketService {
       if (alreadyClaimed) {
         throw new ConflictException(
           'Ya reclamaste tu participación gratuita para este sorteo',
+        );
+      }
+
+      const adViewsCount = await tx.adView.count({
+        where: { userId, raffleId },
+      });
+      if (adViewsCount < AD_VIEWS_REQUIRED) {
+        throw new ConflictException(
+          `Todavía te faltan ${AD_VIEWS_REQUIRED - adViewsCount} anuncios para desbloquear tu ticket gratis`,
         );
       }
 
@@ -133,5 +145,50 @@ export class TicketService {
 
       return ticket;
     });
+  }
+
+  /**
+   * Progreso de anuncios vistos para un usuario en un sorteo puntual.
+   * Usado por el frontend para mostrar "2/5 anuncios" y habilitar el botón.
+   */
+  async getAdProgress(userId: string, raffleId: string) {
+    const [count, alreadyClaimed] = await Promise.all([
+      this.prisma.adView.count({ where: { userId, raffleId } }),
+      this.prisma.ticket.findFirst({
+        where: { userId, raffleId, source: TicketSource.AD },
+      }),
+    ]);
+
+    return {
+      count: Math.min(count, AD_VIEWS_REQUIRED),
+      required: AD_VIEWS_REQUIRED,
+      canClaim: count >= AD_VIEWS_REQUIRED && !alreadyClaimed,
+      alreadyClaimed: !!alreadyClaimed,
+    };
+  }
+
+  /**
+   * Registra un anuncio completado desde el postback de AdGate Media.
+   * Idempotente por conversionId: si AdGate reintenta el mismo postback, no duplica.
+   */
+  async recordAdView(userId: string, raffleId: string, conversionId: string) {
+    const existing = await this.prisma.adView.findUnique({
+      where: { conversionId },
+    });
+    if (existing) {
+      return { alreadyRecorded: true };
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    const raffle = await this.prisma.raffle.findUnique({ where: { id: raffleId } });
+    if (!raffle) throw new NotFoundException('Sorteo no encontrado');
+
+    await this.prisma.adView.create({
+      data: { userId, raffleId, conversionId },
+    });
+
+    return { alreadyRecorded: false };
   }
 }
