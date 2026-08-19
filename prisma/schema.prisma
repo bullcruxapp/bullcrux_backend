@@ -146,3 +146,11 @@ model AdView {
 
   @@index([userId, raffleId])
 }
+
+/// Lista de espera: gente interesada en publicar/vender sorteos en BullCrux,
+/// que todavía no está habilitado. Se les avisa por mail cuando se abra.
+model WaitlistEntry {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
