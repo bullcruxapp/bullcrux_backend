@@ -10,6 +10,7 @@ import { UploadModule } from './upload/upload.module';
 import { DrawModule } from './draw/draw.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { WaitlistModule } from './waitlist/waitlist.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UploadModule,
     DrawModule,
     FavoriteModule,
+    WaitlistModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
   ],
