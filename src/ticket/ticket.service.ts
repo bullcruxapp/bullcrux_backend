@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { Ticket, RaffleStatus, TicketSource } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MailService } from 'src/mail/mail.service';
 
 /** Cantidad de anuncios que hay que completar para desbloquear 1 ticket gratis. */
 export const AD_VIEWS_REQUIRED = 5;
 
 @Injectable()
 export class TicketService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private mailService: MailService) {}
 
   async getTicketsByUser(userId: string): Promise<Ticket[]> {
     return this.prisma.ticket.findMany({
@@ -79,6 +80,21 @@ export class TicketService {
         },
       });
 
+      return { tickets, raffleTitle: raffle.title, productName: raffle.productName };
+    }).then(async ({ tickets, raffleTitle, productName }) => {
+      // Mail de confirmación, fuera de la transacción para no bloquear la compra si tarda
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user?.email) {
+        this.mailService
+          .sendTicketConfirmationEmail(
+            user.email,
+            user.name || 'participante',
+            raffleTitle,
+            productName,
+            tickets.map(t => t.number),
+          )
+          .catch(err => console.error('Error enviando mail de confirmación:', err));
+      }
       return tickets;
     });
   }
@@ -143,6 +159,20 @@ export class TicketService {
         },
       });
 
+      return { ticket, raffleTitle: raffle.title, productName: raffle.productName };
+    }).then(async ({ ticket, raffleTitle, productName }) => {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user?.email) {
+        this.mailService
+          .sendTicketConfirmationEmail(
+            user.email,
+            user.name || 'participante',
+            raffleTitle,
+            productName,
+            [ticket.number],
+          )
+          .catch(err => console.error('Error enviando mail de confirmación:', err));
+      }
       return ticket;
     });
   }
