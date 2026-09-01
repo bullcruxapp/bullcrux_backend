@@ -154,3 +154,12 @@ model WaitlistEntry {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+/// Anuncios propios (videos) que se muestran en vez de un proveedor externo,
+/// para desbloquear el ticket gratis. Rotan al azar entre los que estén "active".
+model HouseAd {
+  id        String   @id @default(uuid())
+  videoUrl  String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
