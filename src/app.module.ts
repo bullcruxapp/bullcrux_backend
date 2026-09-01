@@ -11,6 +11,7 @@ import { DrawModule } from './draw/draw.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WaitlistModule } from './waitlist/waitlist.module';
+import { HouseAdModule } from './house-ad/house-ad.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WaitlistModule } from './waitlist/waitlist.module';
     DrawModule,
     FavoriteModule,
     WaitlistModule,
+    HouseAdModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
   ],
