@@ -44,6 +44,13 @@ export class MailService {
         console.error('Resend error:', error);
         return { success: false, error };
       }
+      return { success: true, data };
+    } catch (err) {
+      console.error('Mail send error:', err);
+      return { success: false, error: err };
+    }
+  }
+
   async sendTicketConfirmationEmail(to: string, userName: string, raffleTitle: string, productName: string, ticketNumbers: number[]) {
     try {
       const numbersHtml = ticketNumbers
