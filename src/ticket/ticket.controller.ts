@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { Ticket } from '@prisma/client';
 import { TicketService } from './ticket.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -74,5 +75,18 @@ export class TicketController {
     }
 
     return this.ticketService.recordAdView(userId, raffleId, conversionId);
+  }
+
+  /**
+   * Anuncio propio (video subido por vos, no de un proveedor externo).
+   * El usuario ya está logueado (JWT), así que no hace falta el secret:
+   * generamos nosotros mismos el ID único de la vista.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('house-ad-view')
+  async houseAdView(@Req() req: any, @Body('raffleId') raffleId: string) {
+    if (!raffleId) throw new ForbiddenException('Falta el sorteo');
+    const conversionId = `house-${req.user.id}-${raffleId}-${randomUUID()}`;
+    return this.ticketService.recordAdView(req.user.id, raffleId, conversionId);
   }
 }
