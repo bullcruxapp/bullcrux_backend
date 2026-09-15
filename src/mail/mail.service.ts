@@ -54,7 +54,7 @@ export class MailService {
   async sendTicketConfirmationEmail(to: string, userName: string, raffleTitle: string, productName: string, ticketNumbers: number[]) {
     try {
       const numbersHtml = ticketNumbers
-        .map(n => `<span style="display:inline-block; background:#1a1a1a; border:1px solid #ABDA5344; border-radius:8px; padding:8px 16px; margin:4px; color:#ABDA53; font-size:20px; font-weight:900;">#${n}</span>`)
+        .map(n => `<span style="display:inline-block; background:#1a1a1a; border:1px solid #ABDA5344; border-radius:8px; padding:8px 16px; margin:4px; color:#ABDA53; font-size:20px; font-weight:900;">#${String(n).padStart(4, '0')}</span>`)
         .join('');
 
       const { data, error } = await this.resend.emails.send({
