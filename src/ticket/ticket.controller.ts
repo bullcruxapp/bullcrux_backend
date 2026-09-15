@@ -27,6 +27,12 @@ export class TicketController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('mine/:raffleId')
+  async getMyTicketsForRaffle(@Req() req: any, @Param('raffleId') raffleId: string) {
+    return this.ticketService.getMyTicketsForRaffle(req.user.id, raffleId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('ad-progress/:raffleId')
   async getAdProgress(@Req() req: any, @Param('raffleId') raffleId: string) {
     return this.ticketService.getAdProgress(req.user.id, raffleId);

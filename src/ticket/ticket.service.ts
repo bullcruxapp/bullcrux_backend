@@ -15,12 +15,37 @@ export const AD_VIEWS_REQUIRED = 5;
 export class TicketService {
   constructor(private prisma: PrismaService, private mailService: MailService) {}
 
+  /**
+   * Genera un código de 4 cifras (1000-9999) único dentro de ese sorteo.
+   * No es correlativo: no da pistas de cuántos tickets se vendieron ni en qué orden.
+   */
+  private async generateUniqueTicketNumber(tx: any, raffleId: string): Promise<number> {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const candidate = 1000 + Math.floor(Math.random() * 9000);
+      const existing = await tx.ticket.findUnique({
+        where: { raffleId_number: { raffleId, number: candidate } },
+      });
+      if (!existing) return candidate;
+    }
+    throw new ConflictException('No se pudo generar un código único, intentá de nuevo');
+  }
+
   async getTicketsByUser(userId: string): Promise<Ticket[]> {
     return this.prisma.ticket.findMany({
       where: { userId },
       include: { raffle: { include: { productImages: true } } },
       orderBy: { purchasedAt: 'desc' },
     });
+  }
+
+  /** Los números (códigos) que tiene un usuario en un sorteo puntual. */
+  async getMyTicketsForRaffle(userId: string, raffleId: string) {
+    const tickets = await this.prisma.ticket.findMany({
+      where: { userId, raffleId },
+      select: { number: true },
+      orderBy: { purchasedAt: 'asc' },
+    });
+    return tickets.map(t => t.number);
   }
 
   /**
@@ -53,14 +78,14 @@ export class TicketService {
       }
 
       const tickets: Ticket[] = [];
-      const startNumber = raffle.ticketsSold + 1;
 
       for (let i = 0; i < quantity; i++) {
+        const number = await this.generateUniqueTicketNumber(tx, raffleId);
         const ticket = await tx.ticket.create({
           data: {
             raffleId,
             userId,
-            number: startNumber + i,
+            number,
             source: TicketSource.PAID,
           },
         });
@@ -135,7 +160,7 @@ export class TicketService {
         );
       }
 
-      const number = raffle.ticketsSold + 1;
+      const number = await this.generateUniqueTicketNumber(tx, raffleId);
 
       const ticket = await tx.ticket.create({
         data: {
