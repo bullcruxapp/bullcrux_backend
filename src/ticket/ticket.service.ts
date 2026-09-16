@@ -105,8 +105,8 @@ export class TicketService {
         },
       });
 
-      return { tickets, raffleTitle: raffle.title, productName: raffle.productName };
-    }).then(async ({ tickets, raffleTitle, productName }) => {
+      return { tickets, raffleTitle: raffle.title, productName: raffle.productName, raffleId };
+    }).then(async ({ tickets, raffleTitle, productName, raffleId }) => {
       // Mail de confirmación, fuera de la transacción para no bloquear la compra si tarda
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
       if (user?.email) {
@@ -117,6 +117,7 @@ export class TicketService {
             raffleTitle,
             productName,
             tickets.map(t => t.number),
+            raffleId,
           )
           .catch(err => console.error('Error enviando mail de confirmación:', err));
       }
@@ -184,8 +185,8 @@ export class TicketService {
         },
       });
 
-      return { ticket, raffleTitle: raffle.title, productName: raffle.productName };
-    }).then(async ({ ticket, raffleTitle, productName }) => {
+      return { ticket, raffleTitle: raffle.title, productName: raffle.productName, raffleId };
+    }).then(async ({ ticket, raffleTitle, productName, raffleId }) => {
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
       if (user?.email) {
         this.mailService
@@ -195,6 +196,7 @@ export class TicketService {
             raffleTitle,
             productName,
             [ticket.number],
+            raffleId,
           )
           .catch(err => console.error('Error enviando mail de confirmación:', err));
       }
